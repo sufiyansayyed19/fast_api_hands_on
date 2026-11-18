@@ -1,12 +1,26 @@
+from pydantic.deprecated import tools
 from fastapi import FastAPI, status
+from pydantic import BaseModel
 import json
 
 with open("tasks_db.json", "r") as file:
     tasks = json.load(file)
 
-task_id_counter = 3
+task_id_counter = 8
 
 app = FastAPI()
+
+
+class Task(BaseModel):
+    title:str 
+    description:str | None = None
+    completed:bool = False
+    priority:str = "Medium"
+    # estimated_hours: int
+    # tags: list[str]
+
+
+
 
 
 # -------------------------
@@ -14,20 +28,28 @@ app = FastAPI()
 # -------------------------
 
 @app.get("/tasks")
-def get_tasks():
+def get_tasks(completed:bool|None = None):
+    filtered = list()
+    if (completed == True or completed == False):
+        for task in tasks:
+            if task["completed"] == completed:
+                filtered.append(task)
+        return filtered
     return tasks
 
 
 @app.post("/tasks", status_code=status.HTTP_201_CREATED)
-def create_task():
+def create_task(data: Task):
     global task_id_counter
 
     task_id_counter += 1
 
     new_task = {
         "id": task_id_counter,
-        "title": "",
-        "completed": False
+        "title": data.title,
+        "description": data.description,
+        "completed": data.completed,
+        "priority": data.priority
     }
 
     tasks.append(new_task)
@@ -44,17 +66,30 @@ def get_task(task_id: int):
     return {"message": "task not found"}
 
 
+# # @app.put("/tasks/{task_id}")
+# def update_task(task_id: int):
+#     for task in tasks:
+#         if task["id"] == task_id:
+#             task["title"] = "I am updated"
+#             task["completed"] = True
+
+#             return task
+
+#     return {"message": "task not found"}
+
+
 @app.put("/tasks/{task_id}")
-def update_task(task_id: int):
+def update_task(task_id: int, data: Task):
     for task in tasks:
         if task["id"] == task_id:
-            task["title"] = "I am updated"
-            task["completed"] = True
+            task["title"] = data.title
+            task["description"] = data.description
+            task["completed"] = data.completed
+            task["priority"] = data.priority
 
             return task
 
     return {"message": "task not found"}
-
 
 @app.patch("/tasks/{task_id}")
 def update_task_part(task_id: int):
@@ -103,3 +138,8 @@ def get_user_tasks(
         "user_id": user_id,
         "completed": completed
     }
+
+# temp post
+@app.post("/practice")
+def practice(data: Task):
+    return data
