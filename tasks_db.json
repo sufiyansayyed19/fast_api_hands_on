@@ -4,7 +4,8 @@
         "title": "Learn FastAPI",
         "description": "Complete FastAPI fundamentals",
         "completed": true,
-        "priority": "high"
+        "priority": "high",
+        "internal_note": "Do not expose this"
     },
     {
         "id": 2,
