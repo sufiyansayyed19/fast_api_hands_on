@@ -1,3 +1,4 @@
+from starlette.status import HTTP_404_NOT_FOUND
 from pydantic.deprecated import tools
 from fastapi import FastAPI, status
 from fastapi import HTTPException
@@ -80,7 +81,7 @@ def get_tasks(task_id:int):
           if task["id"] == task_id:
             return task
     raise HTTPException(
-        status_code=404,
+        status_code=HTTP_404_NOT_FOUND,
         detail="Task not found"
     )
 
