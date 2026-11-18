@@ -20,6 +20,13 @@ class Task(BaseModel):
     # tags: list[str]
 
 
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str | None = None
+    completed: bool
+    priority: str
+
 
 
 
@@ -57,14 +64,21 @@ def create_task(data: Task):
     return new_task
 
 
-@app.get("/tasks/{task_id}")
-def get_task(task_id: int):
+# @app.get("/tasks/{task_id}")
+# def get_task(task_id: int):
+#     for task in tasks:
+#         if task["id"] == task_id:
+#             return task
+
+#     return {"message": "task not found"}
+
+
+@app.get("/tasks/{task_get}", response_model=TaskResponse)
+def get_tasks(task_id:int):
     for task in tasks:
-        if task["id"] == task_id:
+          if task["id"] == task_id:
             return task
-
     return {"message": "task not found"}
-
 
 # # @app.put("/tasks/{task_id}")
 # def update_task(task_id: int):
