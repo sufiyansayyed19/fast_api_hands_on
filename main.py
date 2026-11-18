@@ -1,95 +1,105 @@
-from fastapi import FastAPI,status
+from fastapi import FastAPI, status
 import json
 
+with open("tasks_db.json", "r") as file:
+    tasks = json.load(file)
 
+task_id_counter = 3
 
 app = FastAPI()
 
-with open("tasks_db.json","r") as file:
-    tasks = json.load(file)
 
-
-# tasks = [
-#     {"id": 1, "title": "Learn FastAPI", "completed": False},
-#     {"id": 2, "title": "Build TaskFlow", "completed": False},
-# ]
-
-
-@app.get("/")
-def home():
-    return {"message": "Welcome to TaskFlow API"}
-
+# -------------------------
+# Topic 2 — CRUD Routes
+# -------------------------
 
 @app.get("/tasks")
 def get_tasks():
     return tasks
 
 
-@app.get("/tasks/1")
-def get_task():
-    return {
-        "id": 1,
-        "title": "Learn FastAPI",
-        "completed": False
-    }
-    
-
-
-# @app.post("/tasks")
-# def create_task():
-#     new_task = {
-#         "id": 3,
-#         "title": "Learn POST",
-#         "completed": False
-#     }
-#     tasks.append(new_task)
-
-#     return new_task
-
-@app.post("/tasks",status_code=status.HTTP_201_CREATED)
+@app.post("/tasks", status_code=status.HTTP_201_CREATED)
 def create_task():
+    global task_id_counter
+
+    task_id_counter += 1
+
     new_task = {
-        "id":4,
-        "title": "Learn python",
-        "completed" : True
-    }
-    tasks.append(new_task)
-    return new_task
-
-
-
-@app.post("/task/test")
-def create_task4():
-    new_task = {
-        "id": 4,
-        "title": "Testing POST",
+        "id": task_id_counter,
+        "title": "",
         "completed": False
     }
+
     tasks.append(new_task)
 
     return new_task
 
-@app.put("/tasks/{task_id}")
-def update_task(task_id:int):
+
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
     for task in tasks:
         if task["id"] == task_id:
-            print("Hi ")
-            task["title"] =  "Hi there idiot"
-            task["completed"] = True
             return task
+
     return {"message": "task not found"}
 
 
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int):
+    for task in tasks:
+        if task["id"] == task_id:
+            task["title"] = "I am updated"
+            task["completed"] = True
 
+            return task
+
+    return {"message": "task not found"}
+
+
+@app.patch("/tasks/{task_id}")
+def update_task_part(task_id: int):
+    for task in tasks:
+        if task["id"] == task_id:
+            task["title"] = "I am updated partially"
+
+            return task
+
+    return {"message": "task not found"}
 
 
 @app.delete("/tasks/{task_id}")
-def delete_task(task_id:int):
-    print(task_id,"to be deleted")
+def delete_task(task_id: int):
     for task in tasks:
         if task["id"] == task_id:
             tasks.remove(task)
+
             return task
+
     return {"message": "task not found"}
 
 
+# -------------------------
+# Topic 3 — Parameter Practice
+# -------------------------
+
+# 3.4 Multiple Path Parameters
+
+@app.get("/users/{user_id}/tasks/{task_id}")
+def get_user_task(user_id: int, task_id: int):
+    return {
+        "user_id": user_id,
+        "task_id": task_id
+    }
+
+
+# 3.9 Path + Query Parameters
+
+@app.get("/users/{user_id}/tasks")
+def get_user_tasks(
+    user_id: int,
+    completed: bool | None = None
+):
+    return {
+        "user_id": user_id,
+        "completed": completed
+    }

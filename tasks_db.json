@@ -2,16 +2,57 @@
     {
         "id": 1,
         "title": "Learn FastAPI",
-        "completed": false
+        "description": "Complete FastAPI fundamentals",
+        "completed": true,
+        "priority": "high"
     },
     {
         "id": 2,
-        "title": "Build TaskFlow",
-        "completed": false
+        "title": "Practice Path Parameters",
+        "description": "Practice path and query parameters",
+        "completed": true,
+        "priority": "medium"
     },
     {
         "id": 3,
-        "title": "Learn PostgreSQL",
-        "completed": false
+        "title": "Learn Pydantic",
+        "description": "Understand request body validation",
+        "completed": false,
+        "priority": "high"
+    },
+    {
+        "id": 4,
+        "title": "Build CRUD API",
+        "description": "Create a complete CRUD API",
+        "completed": false,
+        "priority": "high"
+    },
+    {
+        "id": 5,
+        "title": "Learn SQLAlchemy",
+        "description": "Connect FastAPI with a database",
+        "completed": false,
+        "priority": "medium"
+    },
+    {
+        "id": 6,
+        "title": "Dockerize Application",
+        "description": "Create a Docker container for TaskFlow",
+        "completed": false,
+        "priority": "low"
+    },
+    {
+        "id": 7,
+        "title": "Write API Tests",
+        "description": "Test TaskFlow endpoints",
+        "completed": true,
+        "priority": "medium"
+    },
+    {
+        "id": 8,
+        "title": "Learn JWT Authentication",
+        "description": "Implement authentication and authorization",
+        "completed": false,
+        "priority": "high"
     }
 ]
