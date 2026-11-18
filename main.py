@@ -17,7 +17,7 @@ class Task(BaseModel):
     title:str 
     description:str | None = None
     completed:bool = False
-    priority:str = "Medium"
+    priority:str = "medium"
     # estimated_hours: int
     # tags: list[str]
 
@@ -29,25 +29,45 @@ class TaskResponse(BaseModel):
     completed: bool
     priority: str
 
-
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    completed: bool | None = None
+    priority: str | None = None
 
 
 # -------------------------
 # Topic 2 — CRUD Routes
 # -------------------------
 
-@app.get("/tasks",response_model=list[TaskResponse])
-def get_tasks(completed:bool|None = None):
-    filtered = list()
-    if (completed == True or completed == False):
+@app.get("/tasks", response_model=list[TaskResponse])
+def get_tasks(completed: bool | None = None):
+    filtered = []
+
+    if completed is not None:
         for task in tasks:
             if task["completed"] == completed:
                 filtered.append(task)
         return filtered
+
     return tasks
 
+@app.get("/tasks/{task_id}", response_model=TaskResponse)
+def get_task(task_id: int):
+    for task in tasks:
+        if task["id"] == task_id:
+            return task
 
-@app.post("/tasks", status_code=status.HTTP_201_CREATED)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Task not found"
+    )
+
+@app.post(
+    "/tasks",
+    status_code=status.HTTP_201_CREATED,
+    response_model=TaskResponse
+)
 def create_task(data: Task):
     global task_id_counter
 
@@ -66,38 +86,10 @@ def create_task(data: Task):
     return new_task
 
 
-# @app.get("/tasks/{task_id}")
-# def get_task(task_id: int):
-#     for task in tasks:
-#         if task["id"] == task_id:
-#             return task
-
-#     return {"message": "task not found"}
-
-
-@app.get("/tasks/{task_get}", response_model=TaskResponse)
-def get_tasks(task_id:int):
-    for task in tasks:
-          if task["id"] == task_id:
-            return task
-    raise HTTPException(
-        status_code=HTTP_404_NOT_FOUND,
-        detail="Task not found"
-    )
-
-# # @app.put("/tasks/{task_id}")
-# def update_task(task_id: int):
-#     for task in tasks:
-#         if task["id"] == task_id:
-#             task["title"] = "I am updated"
-#             task["completed"] = True
-
-#             return task
-
-#     return {"message": "task not found"}
-
-
-@app.put("/tasks/{task_id}")
+@app.put(
+    "/tasks/{task_id}",
+    response_model=TaskResponse
+)
 def update_task(task_id: int, data: Task):
     for task in tasks:
         if task["id"] == task_id:
@@ -108,57 +100,51 @@ def update_task(task_id: int, data: Task):
 
             return task
 
-    return {"message": "task not found"}
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Task not found"
+    )
 
-@app.patch("/tasks/{task_id}")
-def update_task_part(task_id: int):
+
+@app.patch(
+    "/tasks/{task_id}",
+    response_model=TaskResponse
+)
+def update_task_part(task_id: int, data: TaskUpdate):
     for task in tasks:
         if task["id"] == task_id:
-            task["title"] = "I am updated partially"
+
+            if data.title is not None:
+                task["title"] = data.title
+
+            if data.description is not None:
+                task["description"] = data.description
+
+            if data.completed is not None:
+                task["completed"] = data.completed
+
+            if data.priority is not None:
+                task["priority"] = data.priority
 
             return task
 
-    return {"message": "task not found"}
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Task not found"
+    )
 
 
-@app.delete("/tasks/{task_id}")
+@app.delete("/tasks/{task_id}", response_model=TaskResponse)
 def delete_task(task_id: int):
     for task in tasks:
         if task["id"] == task_id:
             tasks.remove(task)
-
             return task
 
-    return {"message": "task not found"}
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Task not found"
+    )
 
 
-# -------------------------
-# Topic 3 — Parameter Practice
-# -------------------------
 
-# 3.4 Multiple Path Parameters
-
-@app.get("/users/{user_id}/tasks/{task_id}")
-def get_user_task(user_id: int, task_id: int):
-    return {
-        "user_id": user_id,
-        "task_id": task_id
-    }
-
-
-# 3.9 Path + Query Parameters
-
-@app.get("/users/{user_id}/tasks")
-def get_user_tasks(
-    user_id: int,
-    completed: bool | None = None
-):
-    return {
-        "user_id": user_id,
-        "completed": completed
-    }
-
-# temp post
-@app.post("/practice")
-def practice(data: Task):
-    return data
