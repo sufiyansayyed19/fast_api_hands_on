@@ -2,7 +2,9 @@ from fastapi import APIRouter, status, HTTPException
 from models.task import Task, TaskResponse,TaskUpdate
 from data.tasks import tasks
 
-router = APIRouter(prefix="/tasks")
+router = APIRouter(
+    prefix="/tasks",
+    tags= ["Tasks"])
 
 
 @router.get("", response_model=list[TaskResponse])
