@@ -4,6 +4,9 @@ from fastapi import FastAPI, status
 from fastapi import HTTPException
 from pydantic import BaseModel
 import json
+from fastapi import Depends
+
+
 
 with open("tasks_db.json", "r") as file:
     tasks = json.load(file)
@@ -11,6 +14,23 @@ with open("tasks_db.json", "r") as file:
 task_id_counter = 8
 
 app = FastAPI()
+
+
+def get_message():
+    return "Hello from dependency"
+
+
+@app.get("/dependency")
+def dep_demo(message=Depends(get_message)):
+    return {
+        "message" : message
+    }
+
+
+
+
+
+
 
 
 class Task(BaseModel):
