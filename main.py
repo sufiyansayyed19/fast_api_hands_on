@@ -27,6 +27,12 @@ def dep_demo(message=Depends(get_message)):
     }
 
 
+def get_current_user():
+    return {
+        "id": 1,
+        "name": "Sufiyan"
+    }
+
 def get_app_name():
     return "TaskFlow"
 
@@ -77,8 +83,23 @@ class TaskUpdate(BaseModel):
 # Topic 2 — CRUD Routes
 # -------------------------
 
+# @app.get("/tasks", response_model=list[TaskResponse])
+# def get_tasks(completed: bool | None = None):
+#     filtered = []
+
+#     if completed is not None:
+#         for task in tasks:
+#             if task["completed"] == completed:
+#                 filtered.append(task)
+#         return filtered
+
+#     return tasks
+
 @app.get("/tasks", response_model=list[TaskResponse])
-def get_tasks(completed: bool | None = None):
+def get_tasks(
+    completed: bool | None = None,
+    user=Depends(get_current_user)
+):
     filtered = []
 
     if completed is not None:
