@@ -27,9 +27,26 @@ def dep_demo(message=Depends(get_message)):
     }
 
 
+def get_app_name():
+    return "TaskFlow"
 
 
+def get_environment():
+    return "development"
 
+@app.get("/info")
+def get_info(app=Depends(get_app_name),env=Depends(get_environment)):
+    return {
+        "app":app,
+        "environment":env
+    }
+
+def get_user_role(role: str):
+    return role
+
+@app.get("/role")
+def role(user_role=Depends(get_user_role)):
+    return {"role": user_role}
 
 
 
