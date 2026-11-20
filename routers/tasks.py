@@ -1,10 +1,102 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Depends
 from models.task import Task, TaskResponse,TaskUpdate
 from data.tasks import tasks
+from sqlalchemy.orm import Session
+from sqlalchemy import text, select
+from database.dependency import get_db
+from models.task_db import TaskDB
+from models.user_db import UserDB
+
 
 router = APIRouter(
     prefix="/tasks",
     tags= ["Tasks"])
+
+@router.get("/db-test")
+def db_test(db: Session = Depends(get_db)):
+    statement = select(TaskDB)
+    result = db.execute(statement)
+    # return {"result": result.scalar().all()}
+    return result.scalars().all()
+
+
+
+@router.post("/db-user")
+def create_db_user(db: Session = Depends(get_db)):
+    user = UserDB(
+        email="sufiyan@example.com"
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+
+@router.post("/db-test")
+def create_db_test(db: Session = Depends(get_db)):
+    task = TaskDB(
+        title="Learn SQLAlchemy",
+        description="Practice SQLAlchemy CRUD",
+        priority="high",
+        user_id=1
+    )
+
+    db.add(task)
+    db.commit()
+
+    return {"message": "Task created"}
+
+
+@router.put("/db-test/{task_id}")
+def update_db_task(
+    task_id: int,
+    db: Session = Depends(get_db)
+):
+    task = db.get(TaskDB, task_id)
+
+    if task is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    task.completed = True
+    task.priority = "high"
+
+    db.commit()
+    db.refresh(task)
+
+    return task
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @router.get("", response_model=list[TaskResponse])
