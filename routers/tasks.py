@@ -30,3 +30,59 @@ def get_tasks(
     tasks = result.scalars().all()
 
     return tasks
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_task(
+    data: Task,
+    db: Session = Depends(get_db)
+):
+    task = TaskDB(
+        title=data.title,
+        description=data.description,
+        completed=data.completed,
+        priority=data.priority,
+        user_id=1
+    )
+
+    db.add(task)
+
+    try:
+        db.commit()
+        db.refresh(task)
+    except:
+        db.rollback()
+        raise
+
+    return task
+
+@router.put(
+    "/{task_id}",
+    response_model=TaskResponse
+)
+def update_task(
+    task_id: int,
+    data: Task,
+    db: Session = Depends(get_db)
+):
+    task = db.get(TaskDB, task_id)
+
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+
+    task.title = data.title
+    task.description = data.description
+    task.completed = data.completed
+    task.priority = data.priority
+
+    try:
+        db.commit()
+        db.refresh(task)
+    except:
+        db.rollback()
+        raise
+
+    return task
